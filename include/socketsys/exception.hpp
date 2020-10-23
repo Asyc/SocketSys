@@ -6,6 +6,11 @@
 
 namespace socketsys {
 
+    class SocketInitException : public std::runtime_error {
+    public:
+        explicit SocketInitException(const char* error, int code) : std::runtime_error(error + std::to_string(code)) {}
+    };
+
     class InitException : public std::runtime_error {
     public:
         explicit InitException(int error) : std::runtime_error("failed to initialize new socket (Error Code: " + std::to_string(error) + ')') {}
@@ -13,12 +18,12 @@ namespace socketsys {
 
     class NameResolveException : public std::runtime_error {
     public:
-        explicit NameResolveException(int error) : std::runtime_error("failed to resolve name (Error Code: " + std::to_string(error) + ')') {}
+        explicit NameResolveException(const char* error, int code) : std::runtime_error(error + std::to_string(code)) {}
     };
 
     class BindException : public std::runtime_error {
     public:
-        explicit BindException(int error) : std::runtime_error("failed to bind new socket (Error Code: " + std::to_string(error) + ')') {}
+        explicit BindException(const char* message, int error) : std::runtime_error(message + std::to_string(error)) {}
     };
 
     class ReadException : public std::runtime_error {

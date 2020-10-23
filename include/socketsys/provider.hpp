@@ -4,20 +4,32 @@
 #include <cstdint>
 #include <string_view>
 
+#include "config.hpp"
 #include "platform.hpp"
 
 namespace socketsys {
 
-    class WindowsProvider {
-    public:
-        using SocketHandle = PLATFORM_HANDLE;
+    template <typename Provider> class SocketInterface;
 
-        static SocketHandle init();
-        static void bind(SocketHandle handle, const std::string_view& address, uint16_t port);
-        static size_t read(SocketHandle handle, char* buffer, size_t length);
-        static void destroy(SocketHandle handle);
+    class WinSockProvider {
+    public:
+        using SocketHandle = uint64_t;
+
+        static SocketHandle init(AddressFamily addressFamily, SocketProtocol protocol);
     };
 
+    class WinSockServerProvider {
+    public:
+        using SocketHandle = uint64_t;
+        using ClientHandle = SocketInterface<WinSockProvider>;
+
+        static SocketHandle init(AddressFamily addressFamily, SocketProtocol protocol);
+        static void bind(SocketHandle handle, const std::string_view& address, uint16_t port, size_t backlog);
+        static ClientHandle accept(SocketHandle handle);
+
+        static void swap(SocketHandle& lhs, SocketHandle& rhs);
+        static void destroy(SocketHandle handle);
+    };
 
 }
 

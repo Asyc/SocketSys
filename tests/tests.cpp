@@ -1,34 +1,28 @@
 #include <iostream>
+#include <thread>
 #include <vector>
 
 #include <gtest/gtest.h>
 
-#include "socketsys/socketsys.hpp"
+#include "socketsys/socket.hpp"
 
 using namespace socketsys;
 
-TEST(Client, Create) {
+TEST(Socket, Create) {
     Socket socket;
 }
 
-TEST(Client, Bind) {
-    try {
-        Socket socket;
-        socket.bind("google.com", 80);
-    } catch (const std::exception& ex) {
-        FAIL() << ex.what() << '\n';
-    }
+TEST(Server, Create) {
+    ServerSocket socket;
 }
 
-TEST(Client, Read) {
-    try {
-        std::vector<char> buffer(100);
+TEST(Server, Bind) {
+    ServerSocket socket;
+    socket.bind("0.0.0.0", 80);
+}
 
-        Socket socket;
-        socket.bind("google.com", 80);
-        socket.read(buffer.data(), buffer.size());
-        std::cout << buffer[0];
-    } catch (const std::exception& ex) {
-        FAIL() << ex.what() << '\n';
-    }
+TEST(Server, Accept) {
+    ServerSocket socket;
+    socket.bind("0.0.0.0", 80);
+
 }
