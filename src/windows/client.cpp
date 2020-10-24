@@ -25,7 +25,7 @@ WinSockProvider::SocketHandle WinSockProvider::init(AddressFamily addressFamily,
 
 void WinSockProvider::connect(SocketHandle handle, const std::string_view& address, uint16_t port) {
     std::array<char, 6> portBuffer{};
-    sprintf(portBuffer.data(), "%d", port);
+    sprintf_s(portBuffer.data(), portBuffer.size(), "%d", port);
 
     WSAPROTOCOL_INFOW proto;
     WSADuplicateSocketW(handle, GetCurrentProcessId(), &proto);
