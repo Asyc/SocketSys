@@ -58,7 +58,7 @@ void WinSockServerProvider::bind(SocketHandle handle, const std::string_view& ad
     auto status = ::bind(handle, info->ai_addr, static_cast<int>(info->ai_addrlen));
     if (status == 0) status = listen(handle, static_cast<int>(backlog));
     if (status != 0) {
-        throw BindException("WinSock failed to bind server socket ", WSAGetLastError());
+        throw SocketBindException("WinSock failed to bind server socket ", WSAGetLastError());
     }
 }
 

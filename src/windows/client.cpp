@@ -57,7 +57,7 @@ void WinSockProvider::connect(SocketHandle handle, const std::string_view& addre
     freeaddrinfo(info);
 
     if (result == 0) {
-        throw BindException("WinSock failed to bind socket ", WSAGetLastError());
+        throw SocketBindException("WinSock failed to bind socket ", WSAGetLastError());
     }
 }
 
