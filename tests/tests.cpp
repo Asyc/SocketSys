@@ -18,14 +18,14 @@ TEST(Socket, Connect) {
     std::thread thread([](){
         try {
             ServerSocket socket;
-            socket.bind("127.0.0.1", 25566);
+            socket.bind("127.0.0.1", 27000);
             socket.accept();
         } catch (const std::exception& ex) {
             FAIL() << ex.what() << '\n';
         }
     });
 
-    socket.connect("127.0.0.1", 25566);
+    socket.connect("127.0.0.1", 27000);
     thread.join();
 }
 
@@ -33,12 +33,12 @@ TEST(Socket, IO) {
     const char* sendData = "send";
 
     ServerSocket socket;
-    socket.bind("127.0.0.1", 81);
+    socket.bind("127.0.0.1", 27001);
 
     std::thread thread([sendData](){
         try {
             Socket socket;
-            socket.connect("127.0.0.1", 81);
+            socket.connect("127.0.0.1", 27001);
             socket.write(sendData, 5);
         } catch (const std::exception& ex) {
             FAIL() << ex.what() << '\n';
@@ -64,17 +64,17 @@ TEST(Server, Create) {
 
 TEST(Server, Bind) {
     ServerSocket socket;
-    socket.bind("127.0.0.1", 80);
+    socket.bind("127.0.0.1", 27002);
 }
 
 TEST(Server, Accept) {
     ServerSocket socket;
-    socket.bind("127.0.0.1", 25565);
+    socket.bind("127.0.0.1", 27003);
 
     std::thread thread([]() {
         try {
             Socket socket;
-            socket.connect("127.0.0.1", 25565);
+            socket.connect("127.0.0.1", 27003);
         } catch (const std::exception& ex) {
             FAIL() << ex.what();
         }
