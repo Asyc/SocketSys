@@ -14,6 +14,13 @@ namespace socketsys {
         using SocketHandle = typename Provider::SocketHandle;
         explicit SocketInterface(AddressFamily family = AddressFamily::IPV4, SocketProtocol protocol = SocketProtocol::TCP) : m_Handle(Provider::init(family, protocol)) {}
         explicit SocketInterface(SocketHandle handle) {m_Handle = handle;}
+        SocketInterface(const SocketInterface<Provider>& other) = delete;
+        SocketInterface(SocketInterface<Provider>&& rhs) noexcept {Provider::swap(m_Handle, rhs.m_Handle);}
+
+        SocketInterface<Provider>& operator=(const SocketInterface<Provider>& rhs) = delete;
+        SocketInterface<Provider>& operator=(SocketInterface<Provider>&& rhs) noexcept {
+            if (this != &rhs) Provider::swap(m_Handle, rhs);
+        }
 
         void connect(const std::string_view& ip, uint16_t port) {Provider::connect(m_Handle, ip, port);}
 
@@ -44,7 +51,6 @@ namespace socketsys {
         ServerSocketInterface<Provider>& operator=(ServerSocketInterface<Provider>&& rhs) noexcept {
             if (this != &rhs) Provider::swap(m_Handle, rhs);
         }
-
 
         void bind(const std::string_view& ip, uint16_t port) {
             Provider::bind(m_Handle, ip, port, 4);
