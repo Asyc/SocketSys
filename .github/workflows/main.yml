@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  windows:
+    name: Windows
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+    
+      - name: Configure Build
+        working-directory: ${{runner.workspace}}
+        run: |
+          mkdir build
+          cd build
+          cmake ${env:GITHUB_WORKSPACE}
+    
+      - name: Build
+        working-directory: ${{runner.workspace}}/build
+        run: |
+          cmake --build . --config release --target SocketSys_Test
+
+      - name: Test
+        working-directory: ${{runner.workspace}}/build/tests/Release/
+        run: ./SocketSys_Test.exe
