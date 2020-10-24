@@ -53,7 +53,7 @@ void WinSockProvider::connect(SocketHandle handle, const std::string_view& addre
     auto result = getaddrinfo(address.data(), portBuffer.data(), &hints, &info);
     if (result != 0) throw NameResolveException("WinSock failed to resolve name ", WSAGetLastError());
 
-    result = ::connect(handle, info->ai_addr, info->ai_addrlen) == 0;
+    result = ::connect(handle, info->ai_addr, static_cast<int>(info->ai_addrlen)) == 0;
     freeaddrinfo(info);
 
     if (result == 0) {
@@ -62,11 +62,11 @@ void WinSockProvider::connect(SocketHandle handle, const std::string_view& addre
 }
 
 size_t WinSockProvider::read(SocketHandle handle, char* buffer, size_t length) {
-    return recv(handle, buffer, length, NULL);
+    return recv(handle, buffer, static_cast<int>(length), NULL);
 }
 
 size_t WinSockProvider::write(SocketHandle handle, const char* buffer, size_t length) {
-    auto result = send(handle, buffer, length, NULL);
+    auto result = send(handle, buffer, static_cast<int>(length), NULL);
     if (result == SOCKET_ERROR) {
         throw IOException("WinSock failed to write to socket", WSAGetLastError());
     }

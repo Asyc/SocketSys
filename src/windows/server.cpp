@@ -39,7 +39,7 @@ void WinSockServerProvider::destroy(SocketHandle handle) {
 
 void WinSockServerProvider::bind(SocketHandle handle, const std::string_view& address, uint16_t port, size_t backlog) {
     std::array<char, 6> portBuffer{};
-    sprintf(portBuffer.data(), "%d", port);
+    sprintf_s(portBuffer.data(), portBuffer.size(), "%d", port);
 
     WSAPROTOCOL_INFOW proto;
     WSADuplicateSocketW(handle, GetCurrentProcessId(), &proto);
@@ -55,8 +55,8 @@ void WinSockServerProvider::bind(SocketHandle handle, const std::string_view& ad
     auto result = getaddrinfo(address.data(), portBuffer.data(), &hints, &info);
     if (result != 0) throw NameResolveException("WinSock failed to resolve name ", WSAGetLastError());
 
-    auto status = ::bind(handle, info->ai_addr, info->ai_addrlen);
-    if (status == 0) status = listen(handle, backlog);
+    auto status = ::bind(handle, info->ai_addr, static_cast<int>(info->ai_addrlen));
+    if (status == 0) status = listen(handle, static_cast<int>(backlog));
     if (status != 0) {
         throw BindException("WinSock failed to bind server socket ", WSAGetLastError());
     }
