@@ -35,11 +35,12 @@ TEST(Socket, UDP) {
 TEST(Socket, Connect) {
     constexpr uint32_t PORT = 27000;
 
-    std::thread thread([=](){
+    ServerSocket server(AddressFamily::IPV6);
+    server.bind("::1", PORT);
+
+    std::thread thread([&](){
         try {
-            ServerSocket socket(AddressFamily::IPV6);
-            socket.bind("::1", PORT);
-            socket.accept();
+            server.accept();
         } catch (const std::exception& ex) {
             FAIL() << ex.what() << '\n';
         }
@@ -53,11 +54,12 @@ TEST(Socket, Connect) {
 TEST(Socket, ConnectIPV6) {
     constexpr uint32_t PORT = 27001;
 
-    std::thread thread([=](){
+    ServerSocket server(AddressFamily::IPV6);
+    server.bind("::1", PORT);
+
+    std::thread thread([&](){
         try {
-            ServerSocket socket(AddressFamily::IPV6);
-            socket.bind("::1", PORT);
-            socket.accept();
+            server.accept();
         } catch (const std::exception& ex) {
             FAIL() << ex.what() << '\n';
         }
@@ -74,11 +76,12 @@ TEST(Socket, Read) {
     const char* data = "Hello, World\n";
     size_t length = strlen(data) + 1;
 
-    std::thread thread([=](){
+    ServerSocket server;
+    server.bind("127.0.0.1", PORT);
+
+    std::thread thread([&](){
         try {
-            ServerSocket socket;
-            socket.bind("127.0.0.1", PORT);
-            auto handle = socket.accept();
+            auto handle = server.accept();
             handle.write(data, length);
         } catch (const std::exception& ex) {
             FAIL() << ex.what() << '\n';
@@ -101,12 +104,12 @@ TEST(Socket, Write) {
     const char* data = "Hello, World\n";
     size_t length = strlen(data) + 1;
 
-    std::thread thread([=](){
-        try {
-            ServerSocket socket;
-            socket.bind("0.0.0.0", PORT);
-            auto handle = socket.accept();
+    ServerSocket server;
+    server.bind("0.0.0.0", PORT);
 
+    std::thread thread([&](){
+        try {
+            auto handle = server.accept();
             std::vector<char> buffer(length);
             handle.read(buffer);
             EXPECT_TRUE(strcmp(buffer.data(), data) == 0);
