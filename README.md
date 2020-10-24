@@ -32,7 +32,7 @@ The default `Socket` and `ServerSocket` classes are typedefs with a OS-Macro dep
 This project uses CMake to build. Cloning submodules is not required unless you desire testing and do not
 have GTest on your path.
 ```bash
-$ git clone git@github.com:Asyc/SocketSys.git
+$ git clone https://github.com/Asyc/SocketSys.git
 ```
 
 It is recommended to use the CMake script to add this library to your project
