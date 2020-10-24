@@ -16,6 +16,7 @@ namespace socketsys {
         explicit SocketInterface(SocketHandle handle) {m_Handle = handle;}
         SocketInterface(const SocketInterface<Provider>& other) = delete;
         SocketInterface(SocketInterface<Provider>&& rhs) noexcept {Provider::swap(m_Handle, rhs.m_Handle);}
+        ~SocketInterface() {Provider::destroy(m_Handle);}
 
         SocketInterface<Provider>& operator=(const SocketInterface<Provider>& rhs) = delete;
         SocketInterface<Provider>& operator=(SocketInterface<Provider>&& rhs) noexcept {
@@ -33,6 +34,18 @@ namespace socketsys {
 
         template <typename Container>
         size_t write(const Container& container) {return Provider::write(m_Handle, container.data(), container.size());}
+
+        // Config Functions
+        void setTcpNoDelay(bool flag) {Provider::setTcpNoDelay(m_Handle, flag);}
+        void setSoReuseAddress(bool flag) {Provider::setSoReuseAddress(m_Handle, flag);}
+        void setSoBroadcast(bool flag) {Provider::setSoBroadcast(m_Handle, flag);}
+        void setSoLinger(bool flag, uint16_t seconds) {Provider::setSoLinger(m_Handle, flag, seconds);}
+        void setSoReceiveTimeout(uint32_t milliseconds) {Provider::setSoReceiveTimeout(m_Handle, milliseconds);}
+        void setSoSendTimeout(uint32_t milliseconds) {Provider::setSoSendTimeout(m_Handle, milliseconds);}
+        void setSoSendBufferSize(int size) {Provider::setSoSendBufferSize(m_Handle, size);}
+        void setSoReceiveBufferSize(int size) {Provider::setSoReceiveBufferSize(m_Handle, size);}
+        void setSoKeepAlive(bool flag) {Provider::setSoKeepAlive(m_Handle, flag);}
+        void setInlineOOB(bool flag) {Provider::setSoInlineOOB(m_Handle, flag);}
     private:
         SocketHandle m_Handle;
     };
@@ -46,6 +59,7 @@ namespace socketsys {
         explicit ServerSocketInterface(AddressFamily family = AddressFamily::IPV4, SocketProtocol protocol = SocketProtocol::TCP) : m_Handle(Provider::init(family, protocol)) {}
         ServerSocketInterface(const ServerSocketInterface<Provider>& other) = delete;
         ServerSocketInterface(ServerSocketInterface<Provider>&& rhs) noexcept {Provider::swap(m_Handle, rhs.m_Handle);}
+        ~ServerSocketInterface() {Provider::destroy(m_Handle);}
 
         ServerSocketInterface<Provider>& operator=(const ServerSocketInterface<Provider>& rhs) = delete;
         ServerSocketInterface<Provider>& operator=(ServerSocketInterface<Provider>&& rhs) noexcept {
@@ -58,7 +72,7 @@ namespace socketsys {
 
         ClientHandle accept() {return Provider::accept(m_Handle);}
 
-        ~ServerSocketInterface() {Provider::destroy(m_Handle);}
+        void setSoReuseAddress(bool flag) {Provider::setSoReuseAddress(m_Handle, flag);}
     private:
         SocketHandle m_Handle;
     };

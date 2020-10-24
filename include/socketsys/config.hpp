@@ -12,11 +12,6 @@ namespace socketsys {
         TCP,
         UDP
     };
-
-    enum class SocketHints {
-
-    };
-
 }
 
 

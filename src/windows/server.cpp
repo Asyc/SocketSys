@@ -25,6 +25,18 @@ WinSockServerProvider::SocketHandle WinSockServerProvider::init(AddressFamily ad
     return socket(family, type, protocolMask);
 }
 
+void WinSockServerProvider::swap(SocketHandle& lhs, SocketHandle& rhs) {
+    lhs = rhs;
+    rhs = INVALID_SOCKET;
+}
+
+void WinSockServerProvider::destroy(SocketHandle handle) {
+    if (handle != INVALID_SOCKET) {
+        closesocket(handle);
+        WSACleanup();
+    }
+}
+
 void WinSockServerProvider::bind(SocketHandle handle, const std::string_view& address, uint16_t port, size_t backlog) {
     std::array<char, 6> portBuffer{};
     sprintf(portBuffer.data(), "%d", port);
@@ -43,7 +55,9 @@ void WinSockServerProvider::bind(SocketHandle handle, const std::string_view& ad
     auto result = getaddrinfo(address.data(), portBuffer.data(), &hints, &info);
     if (result != 0) throw NameResolveException("WinSock failed to resolve name ", WSAGetLastError());
 
-    if (::bind(handle, info[0].ai_addr, sizeof(sockaddr)) + listen(handle, backlog) != 0) {
+    auto status = ::bind(handle, info->ai_addr, info->ai_addrlen);
+    if (status == 0) status = listen(handle, backlog);
+    if (status != 0) {
         throw BindException("WinSock failed to bind server socket ", WSAGetLastError());
     }
 }
@@ -53,11 +67,7 @@ WinSockServerProvider::ClientHandle WinSockServerProvider::accept(SocketHandle h
     return ClientHandle(socket);
 }
 
-void WinSockServerProvider::swap(SocketHandle& lhs, SocketHandle& rhs) {
-    lhs = rhs;
-    rhs = INVALID_SOCKET;
-}
-
-void WinSockServerProvider::destroy(SocketHandle handle) {
-    closesocket(handle);
+void WinSockServerProvider::setSoReuseAddress(SocketHandle handle, bool flag) {
+    BOOL bFlag = flag;
+    setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&bFlag), sizeof(BOOL));
 }

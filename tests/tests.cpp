@@ -1,4 +1,3 @@
-#include <iostream>
 #include <thread>
 #include <vector>
 
@@ -58,23 +57,45 @@ TEST(Socket, IO) {
     EXPECT_TRUE(strcmp(data.data(), sendData) == 0);
 }
 
+TEST(Socket, TCP) {
+    Socket socket(AddressFamily::IPV4, SocketProtocol::TCP);
+    socket.setTcpNoDelay(true);
+    socket.setSoReuseAddress(false);
+    socket.setSoLinger(false, 0);
+    socket.setSoReceiveTimeout(100);
+    socket.setSoSendTimeout(100);
+    socket.setSoSendBufferSize(100);
+    socket.setSoReceiveBufferSize(100);
+    socket.setSoKeepAlive(true);
+}
+
+TEST(Socket, UDP) {
+    Socket socket(AddressFamily::IPV4, SocketProtocol::UDP);
+    socket.setSoBroadcast(true);
+}
+
 TEST(Server, Create) {
     ServerSocket();
 }
 
-TEST(Server, Bind) {
+TEST(Server, IPV4) {
     ServerSocket socket;
     socket.bind("127.0.0.1", 27002);
 }
 
+TEST(Server, IPV6) {
+    ServerSocket socket(AddressFamily::IPV6);
+    socket.bind("::1", 27003);
+}
+
 TEST(Server, Accept) {
     ServerSocket socket;
-    socket.bind("127.0.0.1", 27003);
+    socket.bind("127.0.0.1", 27004);
 
     std::thread thread([]() {
         try {
             Socket socket;
-            socket.connect("127.0.0.1", 27003);
+            socket.connect("127.0.0.1", 27004);
         } catch (const std::exception& ex) {
             FAIL() << ex.what();
         }

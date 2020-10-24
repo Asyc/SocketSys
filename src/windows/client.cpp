@@ -23,6 +23,18 @@ WinSockProvider::SocketHandle WinSockProvider::init(AddressFamily addressFamily,
     return socket(family, type, protocolMask);
 }
 
+void WinSockProvider::destroy(SocketHandle handle) {
+    if (handle != INVALID_SOCKET) {
+        closesocket(handle);
+        WSACleanup();
+    }
+}
+
+void WinSockProvider::swap(SocketHandle& lhs, SocketHandle& rhs) {
+    lhs = rhs;
+    rhs = INVALID_SOCKET;
+}
+
 void WinSockProvider::connect(SocketHandle handle, const std::string_view& address, uint16_t port) {
     std::array<char, 6> portBuffer{};
     sprintf_s(portBuffer.data(), portBuffer.size(), "%d", port);
@@ -60,4 +72,58 @@ size_t WinSockProvider::write(SocketHandle handle, const char* buffer, size_t le
     }
 
     return length;
+}
+
+template <typename Value>
+inline void setsockopt(WinSockProvider::SocketHandle handle, int level, int pName, Value value) {
+    auto status = ::setsockopt(handle, level, pName, reinterpret_cast<char*>(&value), sizeof(Value));
+    if (status != 0) {
+        throw SocketOptionError("WinSock failed to set socket option ", WSAGetLastError());
+    }
+}
+
+void WinSockProvider::setTcpNoDelay(SocketHandle handle, bool flag) {
+    setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, static_cast<BOOL>(flag));
+}
+
+void WinSockProvider::setSoReuseAddress(SocketHandle handle, bool flag) {
+    setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, static_cast<BOOL>(flag));
+}
+
+void WinSockProvider::setSoBroadcast(SocketHandle handle, bool flag) {
+    setsockopt(handle, SOL_SOCKET, SO_BROADCAST, static_cast<BOOL>(flag));
+}
+
+void WinSockProvider::setSoLinger(SocketHandle handle, bool flag, u_short linger) {
+    using Linger = ::linger;
+    Linger lingerData{
+        static_cast<u_short>(flag),
+        linger
+    };
+
+    setsockopt(handle, SOL_SOCKET, SO_LINGER, lingerData);
+}
+
+void WinSockProvider::setSoReceiveTimeout(SocketHandle handle, uint32_t timeout) {
+    setsockopt(handle, SOL_SOCKET, SO_RCVTIMEO, timeout);
+}
+
+void WinSockProvider::setSoSendTimeout(SocketHandle handle, uint32_t timeout) {
+    setsockopt(handle, SOL_SOCKET, SO_SNDTIMEO, timeout);
+}
+
+void WinSockProvider::setSoSendBufferSize(SocketHandle handle, int size) {
+    setsockopt(handle, SOL_SOCKET, SO_RCVBUF, size);
+}
+
+void WinSockProvider::setSoReceiveBufferSize(SocketHandle handle, int size) {
+    setsockopt(handle, SOL_SOCKET, SO_SNDBUF, size);
+}
+
+void WinSockProvider::setSoKeepAlive(SocketHandle handle, bool flag) {
+    setsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, static_cast<BOOL>(flag));
+}
+
+void WinSockProvider::setSoInlineOOB(SocketHandle handle, bool flag) {
+    setsockopt(handle, SOL_SOCKET, SO_OOBINLINE, static_cast<BOOL>(flag));
 }

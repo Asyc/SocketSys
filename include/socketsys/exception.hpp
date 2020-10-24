@@ -16,6 +16,11 @@ namespace socketsys {
         explicit IOException(const char* error, int code) : std::runtime_error(error + std::to_string(code)) {}
     };
 
+    class SocketOptionError : public std::runtime_error {
+    public:
+        explicit SocketOptionError(const char* error, int code) : std::runtime_error(error + std::to_string(code)) {}
+    };
+
     class InitException : public std::runtime_error {
     public:
         explicit InitException(int error) : std::runtime_error("failed to initialize new socket (Error Code: " + std::to_string(error) + ')') {}
