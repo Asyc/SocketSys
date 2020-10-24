@@ -14,6 +14,18 @@ namespace socketsys {
         using SocketHandle = typename Provider::SocketHandle;
         explicit SocketInterface(AddressFamily family = AddressFamily::IPV4, SocketProtocol protocol = SocketProtocol::TCP) : m_Handle(Provider::init(family, protocol)) {}
         explicit SocketInterface(SocketHandle handle) {m_Handle = handle;}
+
+        void connect(const std::string_view& ip, uint16_t port) {Provider::connect(m_Handle, ip, port);}
+
+        size_t read(char* buffer, size_t length) {return Provider::read(m_Handle, buffer, length);}
+
+        template <typename Container>
+        size_t read(Container& container) {return Provider::read(m_Handle, container.data(), container.size());}
+
+        size_t write(const char* buffer, size_t length) {return Provider::write(m_Handle, buffer, length);}
+
+        template <typename Container>
+        size_t write(const Container& container) {return Provider::write(m_Handle, container.data(), container.size());}
     private:
         SocketHandle m_Handle;
     };

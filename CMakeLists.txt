@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 project(SocketSys)
 
-find_package(GTest)
-
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(SocketSys
@@ -17,7 +15,13 @@ add_library(SocketSys
 
 target_include_directories(SocketSys PUBLIC include)
 
-if (GTest_FOUND)
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/libs/gtest)
+    add_subdirectory(libs/gtest)
+else()
+    find_package(GTest)
+endif()
+
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/gtest" OR GTest_FOUND)
     add_subdirectory(tests)
 endif()
 

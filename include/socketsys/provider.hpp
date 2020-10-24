@@ -16,6 +16,10 @@ namespace socketsys {
         using SocketHandle = uint64_t;
 
         static SocketHandle init(AddressFamily addressFamily, SocketProtocol protocol);
+        static void connect(SocketHandle handle, const std::string_view& address, uint16_t port);
+
+        static size_t read(SocketHandle handle, char* buffer, size_t length);
+        static size_t write(SocketHandle handle, const char* buffer, size_t length);
     };
 
     class WinSockServerProvider {
