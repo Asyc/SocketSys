@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 project(SocketSys)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -25,6 +25,8 @@ endif()
 if(WIN32)
     set(SOURCES src/windows/server.cpp src/windows/client.cpp)
     set(OS_LIB Ws2_32)
+elseif(UNIX)
+    set(SOURCES src/linux/server.cpp src/linux/client.cpp)
 endif()
 
 add_library(SocketSys ${HEADERS} src/lib.cpp ${SOURCES})

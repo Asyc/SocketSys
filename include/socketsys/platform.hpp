@@ -10,7 +10,8 @@ namespace socketsys {
 #elif defined(__APPLE__) || defined(__MACH__)
 #error "MACOS Not Supported Yet"
 #elif defined(__linux__)
-#error "Linux Not Supported Yet"
+    using PLATFORM_PROVIDER = class LinuxProvider;
+    using SERVER_PLATFORM_PROVIDER = class LinuxServerProvider;
 #else
 #error "Unknown platform"
 #endif
