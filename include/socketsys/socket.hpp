@@ -23,29 +23,29 @@ namespace socketsys {
             if (this != &rhs) Provider::swap(m_Handle, rhs);
         }
 
-        void connect(const std::string_view& ip, uint16_t port) {Provider::connect(m_Handle, ip, port);}
+        void connect(const std::string_view& ip, uint16_t port) const {Provider::connect(m_Handle, ip, port);}
 
-        size_t read(char* buffer, size_t length) {return Provider::read(m_Handle, buffer, length);}
-
-        template <typename Container>
-        size_t read(Container& container) {return Provider::read(m_Handle, container.data(), container.size());}
-
-        size_t write(const char* buffer, size_t length) {return Provider::write(m_Handle, buffer, length);}
+        size_t read(char* buffer, size_t length) const {return Provider::read(m_Handle, buffer, length);}
 
         template <typename Container>
-        size_t write(const Container& container) {return Provider::write(m_Handle, container.data(), container.size());}
+        size_t read(Container& container) const {return Provider::read(m_Handle, container.data(), container.size());}
+
+        size_t write(const char* buffer, size_t length) const {return Provider::write(m_Handle, buffer, length);}
+
+        template <typename Container>
+        size_t write(const Container& container) const {return Provider::write(m_Handle, container.data(), container.size());}
 
         // Config Functions
-        void setTcpNoDelay(bool flag) {Provider::setTcpNoDelay(m_Handle, flag);}
-        void setSoReuseAddress(bool flag) {Provider::setSoReuseAddress(m_Handle, flag);}
-        void setSoBroadcast(bool flag) {Provider::setSoBroadcast(m_Handle, flag);}
-        void setSoLinger(bool flag, uint16_t seconds) {Provider::setSoLinger(m_Handle, flag, seconds);}
-        void setSoReceiveTimeout(uint32_t milliseconds) {Provider::setSoReceiveTimeout(m_Handle, milliseconds);}
-        void setSoSendTimeout(uint32_t milliseconds) {Provider::setSoSendTimeout(m_Handle, milliseconds);}
-        void setSoSendBufferSize(int size) {Provider::setSoSendBufferSize(m_Handle, size);}
-        void setSoReceiveBufferSize(int size) {Provider::setSoReceiveBufferSize(m_Handle, size);}
-        void setSoKeepAlive(bool flag) {Provider::setSoKeepAlive(m_Handle, flag);}
-        void setInlineOOB(bool flag) {Provider::setSoInlineOOB(m_Handle, flag);}
+        void setTcpNoDelay(bool flag) const {Provider::setTcpNoDelay(m_Handle, flag);}
+        void setSoReuseAddress(bool flag) const {Provider::setSoReuseAddress(m_Handle, flag);}
+        void setSoBroadcast(bool flag) const {Provider::setSoBroadcast(m_Handle, flag);}
+        void setSoLinger(bool flag, uint16_t seconds) const {Provider::setSoLinger(m_Handle, flag, seconds);}
+        void setSoReceiveTimeout(uint32_t milliseconds) const {Provider::setSoReceiveTimeout(m_Handle, milliseconds);}
+        void setSoSendTimeout(uint32_t milliseconds) const {Provider::setSoSendTimeout(m_Handle, milliseconds);}
+        void setSoSendBufferSize(int size) const {Provider::setSoSendBufferSize(m_Handle, size);}
+        void setSoReceiveBufferSize(int size) const {Provider::setSoReceiveBufferSize(m_Handle, size);}
+        void setSoKeepAlive(bool flag) const {Provider::setSoKeepAlive(m_Handle, flag);}
+        void setInlineOOB(bool flag) const {Provider::setSoInlineOOB(m_Handle, flag);}
     private:
         SocketHandle m_Handle;
     };
@@ -66,13 +66,11 @@ namespace socketsys {
             if (this != &rhs) Provider::swap(m_Handle, rhs);
         }
 
-        void bind(const std::string_view& ip, uint16_t port) {
-            Provider::bind(m_Handle, ip, port, 4);
-        }
+        void bind(const std::string_view& ip, uint16_t port, size_t backlog = 20) const { Provider::bind(m_Handle, ip, port, backlog); };
 
-        ClientHandle accept() {return Provider::accept(m_Handle);}
+        ClientHandle accept() const {return Provider::accept(m_Handle);}
 
-        void setSoReuseAddress(bool flag) {Provider::setSoReuseAddress(m_Handle, flag);}
+        void setSoReuseAddress(bool flag) const {Provider::setSoReuseAddress(m_Handle, flag);}
     private:
         SocketHandle m_Handle;
     };
