@@ -31,3 +31,27 @@ jobs:
       - name: Test
         working-directory: ${{runner.workspace}}/build/tests/Release/
         run: ./SocketSys_Test.exe
+  linux:
+    name: Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Configure Build
+        working-directory: ${{runner.workspace}}
+        run: |
+          mkdir build
+          cd build
+          cmake ${env:GITHUB_WORKSPACE}
+
+      - name: Build
+        working-directory: ${{runner.workspace}}/build
+        run: |
+          cmake --build . --config release --target SocketSys_Test
+
+      - name: Test
+        working-directory: ${{runner.workspace}}/build/tests/
+        run: ./SocketSys_Test
