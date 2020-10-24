@@ -1,4 +1,4 @@
-set(SOURCES tests.cpp socket.cpp server.cpp)
+set(SOURCES socket.cpp server.cpp)
 
 set(BINARY ${CMAKE_PROJECT_NAME}_Test)
 
