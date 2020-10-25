@@ -51,7 +51,7 @@ namespace socketsys {
         static void setSoReuseAddress(SocketHandle handle, bool flag);
     };
 
-    class LinuxProvider {
+    class UnixProvider {
     public:
         using SocketHandle = int;
 
@@ -76,10 +76,10 @@ namespace socketsys {
         static void setSoInlineOOB(SocketHandle handle, bool flag);
     };
 
-    class LinuxServerProvider {
+    class UnixServerProvider {
     public:
         using SocketHandle = int;
-        using ClientHandle = SocketInterface<LinuxProvider>;
+        using ClientHandle = SocketInterface<UnixProvider>;
 
         static SocketHandle init(AddressFamily addressFamily, SocketProtocol protocol);
         static void swap(SocketHandle& lhs, SocketHandle& rhs);
@@ -89,8 +89,8 @@ namespace socketsys {
         static ClientHandle accept(SocketHandle handle);
 
         static void setSoReuseAddress(SocketHandle handle, bool flag);
+        static void setSoLinger(SocketHandle, bool flag, uint16_t seconds);
     };
-
 }
 
 

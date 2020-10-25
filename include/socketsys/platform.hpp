@@ -8,10 +8,11 @@ namespace socketsys {
     using PLATFORM_PROVIDER = class WinSockProvider;
     using SERVER_PLATFORM_PROVIDER = class WinSockServerProvider;
 #elif defined(__APPLE__) || defined(__MACH__)
-#error "MACOS Not Supported Yet"
+    using PLATFORM_PROVIDER = class UnixProvider;
+    using SERVER_PLATFORM_PROVIDER = class UnixServerProvider;
 #elif defined(__linux__)
-    using PLATFORM_PROVIDER = class LinuxProvider;
-    using SERVER_PLATFORM_PROVIDER = class LinuxServerProvider;
+    using PLATFORM_PROVIDER = class UnixProvider;
+    using SERVER_PLATFORM_PROVIDER = class UnixServerProvider;
 #else
 #error "Unknown platform"
 #endif
