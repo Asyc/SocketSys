@@ -71,6 +71,7 @@ namespace socketsys {
         ClientHandle accept() const {return Provider::accept(m_Handle);}
 
         void setSoReuseAddress(bool flag) const {Provider::setSoReuseAddress(m_Handle, flag);}
+        void setSoLinger(bool flag, uint16_t seconds) const {Provider::setSoLinger(m_Handle, flag, seconds);}
     private:
         SocketHandle m_Handle;
     };
