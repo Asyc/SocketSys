@@ -79,5 +79,5 @@ void UnixServerProvider::setSoLinger(SocketHandle handle, bool flag, uint16_t se
         flag, seconds
     };
 
-    setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&linger), sizeof(linger));
+    setsockopt(handle, SOL_SOCKET, SO_LINGER, reinterpret_cast<const char*>(&linger), sizeof(linger));
 }

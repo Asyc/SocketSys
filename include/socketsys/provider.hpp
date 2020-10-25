@@ -49,6 +49,7 @@ namespace socketsys {
         static ClientHandle accept(SocketHandle handle);
 
         static void setSoReuseAddress(SocketHandle handle, bool flag);
+        static void setSoLinger(SocketHandle handle, bool flag, uint16_t seconds);
     };
 
     class UnixProvider {
@@ -89,7 +90,7 @@ namespace socketsys {
         static ClientHandle accept(SocketHandle handle);
 
         static void setSoReuseAddress(SocketHandle handle, bool flag);
-        static void setSoLinger(SocketHandle, bool flag, uint16_t seconds);
+        static void setSoLinger(SocketHandle handle, bool flag, uint16_t seconds);
     };
 }
 

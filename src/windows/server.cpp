@@ -71,3 +71,15 @@ void WinSockServerProvider::setSoReuseAddress(SocketHandle handle, bool flag) {
     BOOL bFlag = flag;
     setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&bFlag), sizeof(BOOL));
 }
+
+void WinSockServerProvider::setSoLinger(SocketHandle handle, bool flag, uint16_t seconds) {
+    linger linger{
+        flag,
+        seconds
+    };
+
+    auto result = setsockopt(handle, SOL_SOCKET, SO_LINGER, reinterpret_cast<char*>(&linger), sizeof(linger));
+    if (result == -1) {
+        throw SocketOptionError("WinSock failed to set socket option ", WSAGetLastError());
+    }
+}
