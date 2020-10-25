@@ -1,5 +1,4 @@
 #include <thread>
-#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -7,6 +6,7 @@
 
 using namespace socketsys;
 
+constexpr uint16_t PORT = 27000;
 
 TEST(Server, Create) {
     ServerSocket socket(AddressFamily::IPV4);
@@ -25,28 +25,26 @@ TEST(Server, UDP) {
 }
 
 TEST(Server, Bind) {
-    constexpr uint32_t PORT = 27100;
-
     ServerSocket socket;
+    socket.setSoLinger(true, 0);
     socket.bind("127.0.0.1", PORT);
 }
 
 TEST(Server, BindIPV6) {
-    constexpr uint32_t PORT = 27101;
-
     ServerSocket socket(AddressFamily::IPV6);
+    socket.setSoLinger(true, 0);
     socket.bind("::1", PORT);
 }
 
 TEST(Server, Accept) {
-    constexpr uint32_t PORT = 27102;
-
     ServerSocket socket;
+    socket.setSoLinger(true, 0);
     socket.bind("127.0.0.1", PORT);
 
     std::thread thread([=](){
         try {
             Socket socket;
+            socket.setSoLinger(true, 0);
             socket.connect("127.0.0.1", PORT);
         } catch (const std::exception& ex) {
             FAIL() << ex.what() << '\n';
