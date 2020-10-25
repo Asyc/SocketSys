@@ -55,3 +55,27 @@ jobs:
       - name: Test
         working-directory: ${{runner.workspace}}/build/tests/
         run: ./SocketSys_Test
+  mac:
+    name: MacOS
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Configure Build
+        working-directory: ${{runner.workspace}}
+        run: |
+          mkdir build
+          cd build
+          cmake $GITHUB_WORKSPACE
+
+      - name: Build
+        working-directory: ${{runner.workspace}}/build
+        run: |
+          cmake --build . --config release --target SocketSys_Test
+
+      - name: Test
+        working-directory: ${{runner.workspace}}/build/tests/
+        run: ./SocketSys_Test
