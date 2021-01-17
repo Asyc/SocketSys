@@ -1,6 +1,6 @@
 find_package(Threads REQUIRED)
 
-set(SOURCES socket.cpp server.cpp)
+set(SOURCES socket.cpp)
 
 set(BINARY ${CMAKE_PROJECT_NAME}_Test)
 

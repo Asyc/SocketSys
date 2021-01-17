@@ -4,12 +4,7 @@ project(SocketSys)
 set(CMAKE_CXX_STANDARD 17)
 
 set(HEADERS
-        include/socketsys/socket.hpp
-        include/socketsys/provider.hpp
-        include/socketsys/platform.hpp
-        include/socketsys/exception.hpp
-        include/socketsys/config.hpp
-        )
+        include/socketsys/socket.hpp include/socketsys/platform.hpp include/socketsys/exception.hpp)
 
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/gtest")
@@ -23,10 +18,10 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/gtest" OR GTest_FOUND)
 endif()
 
 if(WIN32)
-    set(SOURCES src/windows/server.cpp src/windows/client.cpp)
+    set(SOURCES src/windows/socket.cpp)
     set(OS_LIB Ws2_32)
 elseif(UNIX)
-    set(SOURCES src/unix/server.cpp src/unix/client.cpp)
+    set(SOURCES src/unix/server.cpp src/unix/client.cpp include/socketsys/socket.hpp src/test.hpp src/windows/socket.cpp include/socketsys/address.hpp)
 endif()
 
 add_library(SocketSys ${HEADERS} src/lib.cpp ${SOURCES})
