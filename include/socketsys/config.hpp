@@ -47,6 +47,13 @@ struct SocketConfig {
      * A value of zero will result in no timeout.
      */
     uint32_t soSndTimeout;
+
+    /**
+     * Time in seconds where the socket will "linger" after closing; finishing
+     * any pending messages, etc.
+     *
+     * A value of zero will result in no linger.
+     */
     uint16_t soLinger;
 };
 
