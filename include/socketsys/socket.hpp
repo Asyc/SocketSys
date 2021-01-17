@@ -9,6 +9,10 @@
 
 namespace socketsys::tcp {
 
+struct SocketConfig {
+    bool
+};
+
 /**
  * An abstract approach to interacting with a system's
  * socket functionality.
@@ -24,7 +28,7 @@ public:
 
     SocketInterface(const SocketInterface& rhs) = delete;
     SocketInterface(SocketInterface&& rhs) noexcept : m_Handle(ImplProvider::INVALID_HANDLE) {
-        m_Handle = rhs.m_Handle;
+        std::swap(m_Handle, rhs.m_Handle);
     };
 
     ~SocketInterface() {
@@ -39,6 +43,11 @@ public:
     void connect(const std::string_view& address, uint16_t port) {
         ImplProvider::connect(m_Handle, address, port);
     }
+
+    void close() {
+        SocketInterface<ImplProvider> temp(std::move(*this));
+    }
+
     //size_t read(void* buffer, size_t bufferSize);
 
 private:

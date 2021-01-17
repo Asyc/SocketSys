@@ -4,8 +4,10 @@
 #include <array>
 #include <memory>
 #include <vector>
+#include <socketsys/internal/windows.hpp>
 
 #include "socketsys/address.hpp"
+#include "socketsys/config.hpp"
 #include "socketsys/platform.hpp"
 #include "socketsys/exception.hpp"
 
@@ -89,6 +91,30 @@ void WinSockProvider::connect(Handle handle, const IpAddress& remoteAddress, uin
         default:
             throw SocketConnectError(error);
     }
+}
+
+template <typename T, int Opt>
+inline void setSockOpt(SOCKET handle, T val) {
+    setsockopt(handle, SOL_SOCKET, Opt, reinterpret_cast<char*>(&val), sizeof(T));
+}
+
+void WinSockProvider::setSocketOptions(Handle handle, const SocketConfig& config) {
+    setSockOpt<DWORD, SO_EXCLUSIVEADDRUSE>(handle, config.soExclusiveAddressUse);
+    setSockOpt<DWORD, SO_REUSEADDR>(handle, config.soReuseAddress);
+    setSockOpt<DWORD, SO_KEEPALIVE>(handle, config.soKeepAlive);
+    setSockOpt<DWORD, SO_OOBINLINE>(handle, config.soInlineOOB);
+
+    setSockOpt<DWORD, SO_RCVBUF>(handle, config.soRcvBuf);
+    setSockOpt<DWORD, SO_SNDBUF>(handle, config.soSndBuf);
+    setSockOpt<DWORD, SO_RCVTIMEO>(handle, config.soRcvTimeout);
+    setSockOpt<DWORD, SO_SNDTIMEO>(handle, config.soSndTimeout);
+
+    linger lingerSettings {
+        config.soLinger != 0,
+        config.soLinger
+    };
+
+    setSockOpt<linger, SO_LINGER>(handle, lingerSettings);
 }
 
 }   // namespace socketsys::tcp
