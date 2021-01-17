@@ -3,6 +3,8 @@
 
 #include <string_view>
 
+#include "socketsys/address.hpp"
+
 namespace socketsys::tcp {
 
 struct SocketConfig;
@@ -21,6 +23,7 @@ public:
     static void connect(Handle handle, const IpAddress& remoteAddress, uint16_t remotePort);
 
     static void setSocketOptions(Handle handle, const SocketConfig& config);
+    static void getSocketOptions(Handle handle, SocketConfig& out);
 };
 
 using PLATFORM_PROVIDER = WinSockProvider;

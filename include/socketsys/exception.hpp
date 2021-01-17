@@ -40,13 +40,13 @@ CREATE_EXCEPTION(AddressUnresolvableError, "Unable to resolve address name");
 CREATE_EXCEPTION(SocketOperationError, "Failed to run socket operation");
 
 CREATE_EXCEPTION(SocketConnectError, "Socket failed to connect");
-CREATE_CHILD_EXCEPTION(SocketConnectError, NetworkDownError, "The network subsystem has failed");
+CREATE_EXCEPTION(NetworkDownError, "The network subsystem has failed");
 CREATE_CHILD_EXCEPTION(SocketConnectError, AddressInUseError, "The socket's local address is already in use");
 CREATE_CHILD_EXCEPTION(SocketConnectError, ConnectionRefusedError, "The attempt to connect was forcefully rejected");
 CREATE_CHILD_EXCEPTION(SocketConnectError, SocketAlreadyConnectedError, "The socket is already connected");
 CREATE_CHILD_EXCEPTION(SocketConnectError, HostUnreachableError, "The socket attempted to connect to an unreachable host");
 
-
+CREATE_EXCEPTION(ConnectionResetError, "The socket connection has been reset");
 
 #undef CREATE_EXCEPTION
 

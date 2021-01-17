@@ -11,5 +11,8 @@ TEST(SocketTcp, CreateIpv4) {
 
 TEST(SocketTcp, ConnectIpv4) {
     socketsys::tcp::Socket socket;
-    socket.connect("127.0.0.1", 80);
+    socket.connect("google.com", 80);
+
+    auto options = socket.getSocketOptions();
+
 }

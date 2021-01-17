@@ -29,7 +29,7 @@ uint64_t WinSockProvider::newSocket(AddressFamily family) {
             addressFamily = AF_INET6;
             break;
         default:
-            throw std::runtime_error("unknown address family");
+            throw AddressFamilyUnsupported(-1);
     }
 
     auto handle = socket(addressFamily, SOCK_STREAM, IPPROTO_TCP);
@@ -41,7 +41,7 @@ uint64_t WinSockProvider::newSocket(AddressFamily family) {
         case WSAEMFILE:
         case WSAENOBUFS: throw MaximumSocketsError(error);
         case WSAEPROTONOSUPPORT: throw UnsupportedProtocolError(error);
-        default: throw SocketCreateError(error);
+        default: throw SocketException("Unknown error while creating socket", error);
     }
 }
 
@@ -89,32 +89,92 @@ void WinSockProvider::connect(Handle handle, const IpAddress& remoteAddress, uin
         case WSAETIMEDOUT:
             throw HostUnreachableError(error);
         default:
-            throw SocketConnectError(error);
+            throw SocketException("Unknown error while connecting socket", error);
     }
 }
 
-template <typename T, int Opt>
+template <typename T, int Level, int Opt>
 inline void setSockOpt(SOCKET handle, T val) {
-    setsockopt(handle, SOL_SOCKET, Opt, reinterpret_cast<char*>(&val), sizeof(T));
+    auto error = setsockopt(handle, Level, Opt, reinterpret_cast<char*>(&val), sizeof(T));
+    if (error != SOCKET_ERROR) return;
+    error = WSAGetLastError();
+    switch (error) {
+        case WSAENETDOWN: throw NetworkDownError(error);
+        case WSAENETRESET:
+        case WSAENOTCONN:
+            throw ConnectionResetError(error);
+        case WSAENOPROTOOPT:
+            throw UnsupportedProtocolError(error);
+        default:
+            throw SocketException("Unknown error while completing socket operation", error);
+    }
 }
 
 void WinSockProvider::setSocketOptions(Handle handle, const SocketConfig& config) {
-    setSockOpt<DWORD, SO_EXCLUSIVEADDRUSE>(handle, config.soExclusiveAddressUse);
-    setSockOpt<DWORD, SO_REUSEADDR>(handle, config.soReuseAddress);
-    setSockOpt<DWORD, SO_KEEPALIVE>(handle, config.soKeepAlive);
-    setSockOpt<DWORD, SO_OOBINLINE>(handle, config.soInlineOOB);
+    setSockOpt<DWORD, SOL_SOCKET, SO_EXCLUSIVEADDRUSE>(handle, config.soExclusiveAddressUse);
+    setSockOpt<DWORD, SOL_SOCKET, SO_REUSEADDR>(handle, config.soReuseAddress);
+    setSockOpt<DWORD, SOL_SOCKET, SO_KEEPALIVE>(handle, config.soKeepAlive);
+    setSockOpt<DWORD, SOL_SOCKET, SO_OOBINLINE>(handle, config.soInlineOOB);
 
-    setSockOpt<DWORD, SO_RCVBUF>(handle, config.soRcvBuf);
-    setSockOpt<DWORD, SO_SNDBUF>(handle, config.soSndBuf);
-    setSockOpt<DWORD, SO_RCVTIMEO>(handle, config.soRcvTimeout);
-    setSockOpt<DWORD, SO_SNDTIMEO>(handle, config.soSndTimeout);
+    setSockOpt<DWORD, SOL_SOCKET, SO_RCVBUF>(handle, config.soRcvBuf);
+    setSockOpt<DWORD, SOL_SOCKET, SO_SNDBUF>(handle, config.soSndBuf);
+    setSockOpt<DWORD, SOL_SOCKET, SO_RCVTIMEO>(handle, config.soRcvTimeout);
+    setSockOpt<DWORD, SOL_SOCKET, SO_SNDTIMEO>(handle, config.soSndTimeout);
 
     linger lingerSettings {
         config.soLinger != 0,
         config.soLinger
     };
 
-    setSockOpt<linger, SO_LINGER>(handle, lingerSettings);
+    setSockOpt<linger, SOL_SOCKET, SO_LINGER>(handle, lingerSettings);
+
+
+}
+
+template <typename T, int Level, int Opt>
+inline T getSockOpt(SOCKET handle) {
+    T val{};
+    int len = sizeof(T);
+    auto error = getsockopt(handle, Level, Opt, reinterpret_cast<char*>(&val), &len);
+    if (error != SOCKET_ERROR) return val;
+    error = WSAGetLastError();
+    switch (error) {
+        case WSAENETDOWN: throw NetworkDownError(error);
+        case WSAENETRESET:
+        case WSAENOTCONN:
+            throw ConnectionResetError(error);
+        case WSAENOPROTOOPT:
+            throw UnsupportedProtocolError(error);
+        default:
+            throw SocketException("Unknown error while completing socket operation", error);
+    }
+}
+
+
+void WinSockProvider::getSocketOptions(WinSockProvider::Handle handle, SocketConfig& out) {
+    out.soExclusiveAddressUse = getSockOpt<DWORD, SOL_SOCKET, SO_EXCLUSIVEADDRUSE>(handle);
+    out.soReuseAddress = getSockOpt<DWORD, SOL_SOCKET, SO_REUSEADDR>(handle);
+    out.soKeepAlive = getSockOpt<DWORD, SOL_SOCKET, SO_KEEPALIVE>(handle);
+    out.soInlineOOB = getSockOpt<DWORD, SOL_SOCKET, SO_OOBINLINE>(handle);
+
+    out.soRcvBuf = getSockOpt<DWORD, SOL_SOCKET, SO_RCVBUF>(handle);
+    out.soSndBuf = getSockOpt<DWORD, SOL_SOCKET, SO_SNDBUF>(handle);
+    out.soRcvTimeout = getSockOpt<DWORD, SOL_SOCKET, SO_RCVTIMEO>(handle);
+    out.soSndTimeout = getSockOpt<DWORD, SOL_SOCKET, SO_SNDTIMEO>(handle);
+
+    auto lingerSettings = getSockOpt<linger, SOL_SOCKET, SO_LINGER>(handle);
+    if (lingerSettings.l_onoff) {
+        out.soLinger = lingerSettings.l_linger;
+    } else {
+        out.soLinger = 0;
+    }
+
+    out.tcpKeepAliveCount = getSockOpt<DWORD, IPPROTO_TCP, TCP_KEEPCNT>(handle);
+    out.tcpNoDelay = getSockOpt<DWORD, IPPROTO_TCP, TCP_NODELAY>(handle);
+    out.tcpTimestamps = getSockOpt<DWORD, IPPROTO_TCP, TCP_TIMESTAMPS>(handle);
+    out.tcpKeepAlive = getSockOpt<DWORD, IPPROTO_TCP, TCP_KEEPALIVE>(handle);
+    out.tcpKeepAliveInterval = getSockOpt<DWORD, IPPROTO_TCP, TCP_KEEPINTVL>(handle);
+
 }
 
 }   // namespace socketsys::tcp

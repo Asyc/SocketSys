@@ -55,6 +55,37 @@ struct SocketConfig {
      * A value of zero will result in no linger.
      */
     uint16_t soLinger;
+
+    // Protocol Options
+
+    /**
+     * Gets or sets the number of TCP keep alive probes that will
+     * be sent before the connection is terminated.
+     */
+    uint8_t tcpKeepAliveCount;
+
+    /**
+     * Enables or disables the Nagle algorithm for TCP sockets.
+     */
+    bool tcpNoDelay;
+
+    /**
+     * Enables or disables RFC 1323 time stamps.
+     */
+    bool tcpTimestamps;
+
+    /**
+     * Gets or sets the number of seconds a TCP connection will remain idle before
+     * keep-alive probes are sent to the remote.
+     */
+    uint32_t tcpKeepAlive;
+
+    /**
+     * Gets or sets the number of seconds a TCP connection will wait for a keep-alive
+     * response before sending another keep-alive probe.
+     */
+    uint32_t tcpKeepAliveInterval;
+
 };
 
 }   // namespace socketsys::tcp

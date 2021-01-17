@@ -5,13 +5,10 @@
 #include <string_view>
 
 #include "socketsys/address.hpp"
+#include "socketsys/config.hpp"
 #include "socketsys/platform.hpp"
 
 namespace socketsys::tcp {
-
-struct SocketConfig {
-    bool
-};
 
 /**
  * An abstract approach to interacting with a system's
@@ -49,7 +46,11 @@ public:
     }
 
     //size_t read(void* buffer, size_t bufferSize);
-
+    [[nodiscard]] SocketConfig getSocketOptions() const {
+        SocketConfig config{};
+        ImplProvider::getSocketOptions(m_Handle, config);
+        return config;
+    }
 private:
     SocketHandle m_Handle;
 
