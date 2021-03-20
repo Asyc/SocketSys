@@ -1,0 +1,14 @@
+#ifndef SOCKETSYS_INCLUDE_SOCKETSYS_OS_TCP_WINSOCK_TCP_HPP_
+#define SOCKETSYS_INCLUDE_SOCKETSYS_OS_TCP_WINSOCK_TCP_HPP_
+
+namespace socketsys::windows {
+
+class TcpSocket {
+
+
+
+};
+
+}
+
+#endif //SOCKETSYS_INCLUDE_SOCKETSYS_OS_TCP_WINSOCK_TCP_HPP_
